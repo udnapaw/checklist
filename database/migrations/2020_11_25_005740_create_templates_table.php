@@ -17,7 +17,7 @@ class CreateTemplatesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('checklist_id');
             $table->foreign('checklist_id')->references('id')->on('checklists');
-            $table->string('name');
+            $table->string('name');            
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users');
             $table->unsignedBigInteger('updated_by');

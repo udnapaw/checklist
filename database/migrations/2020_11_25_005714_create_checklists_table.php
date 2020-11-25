@@ -14,19 +14,15 @@ class CreateChecklistsTable extends Migration
     public function up()
     {
         Schema::create('checklists', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('item_id');
-            $table->foreign('item_id')->references('id')->on('items');            
+            $table->id();                        
             $table->string('description');
             $table->dateTime('due')->nullable();
             $table->integer('urgency');    
             $table->integer('object_id')->nullable();
             $table->string('object_domain')->nullable();
             $table->boolean('is_completed');
-            $table->dateTime('completed_at')->nullable();                                       
-            $table->string('task_id');
-            $table->unsignedBigInteger('assignee_id')->nullable();
-            $table->foreign('assignee_id')->references('id')->on('users');
+            $table->dateTime('completed_at')->nullable(); 
+            $table->string('link');                                                              
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users');
             $table->unsignedBigInteger('updated_by');

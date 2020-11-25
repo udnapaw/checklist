@@ -18,6 +18,10 @@ $router->get('/', function () use ($router) {
 $router->group(['middleware' => 'auth','prefix' => 'api'], function ($router) 
 {
     $router->get('profile', 'AuthController@profile');
+    $router->post('checklists', 'ChecklistController@store');
+    $router->get('checklists/{checklistId}', 'ChecklistController@getByChecklistId');
+    $router->patch('checklists/{checklistId}', 'ChecklistController@update');
+    $router->delete('checklists/{checklistId}', 'ChecklistController@delete');
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) 
