@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChecklistItem extends Model
 {
+
     protected $table = 'checklistitems';    
     protected $fillable = [
         'checklist_id', 'description', 'due', 'urgency', 'is_completed', 'completed_at', 'deleted_at', 'asignee_id', 'created_by', 'updated_by'
@@ -14,7 +15,7 @@ class ChecklistItem extends Model
     protected $attributes = [
         'is_completed' => false,
     ];
-
+    
     public function createdBy()
     {
         return $this->belongsTo('App\Models\User', 'created_by', 'id');

@@ -155,7 +155,7 @@ class ChecklistController extends Controller
                         'due'               => $checklist->due,
                         'urgency'           => $checklist->urgency,
                         'completed_at'      => $checklist->completed_at,
-                        'last_update_by'    => empty($checklist->updatedBy->name) ? null : $checklist->updatedBy->name,
+                        'last_update_by'    => $checklist->updated_by,
                         'update_at'         => $checklist->update_at,
                         'created_at'        => $checklist->created_at,
                     ],
@@ -291,7 +291,7 @@ class ChecklistController extends Controller
             $history->created_by = auth()->user()->id;
             $history->save();
 
-            $checklist->delete();        
+            $checklist->delete();
 
             return response()->json("", 204);
         } catch (ModelNotFoundException $e) {
@@ -299,6 +299,177 @@ class ChecklistController extends Controller
                 'status'    => 404,
                 'error'     => $e->getMessage()
             ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'    => 500,
+                'error'     => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getList(Request $req)
+    {
+        try {
+            $validator = Validator::make($req->all(), [
+                'include'       => 'in:items|nullable',
+                'page.limit'    => 'nullable',
+                'page.offset'   => 'nullable'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $pageLimit = empty($req->page['limit']) ? 10 : $req->page['limit'];
+            $pageOffset = empty($req->page['offset']) ? 0 : $req->page['offset'];
+            $getLinks = $req->url();
+            $total = Checklist::count();
+            $checklists = Checklist::with('updatedBy')->skip($pageOffset)->take($pageLimit)->get();
+            $data = array();
+            $include = $req->include;
+
+            foreach ($checklists as $checklist) {
+
+                $firstPageOffset = 0;
+                $lastPageOffset = $total - $pageLimit;
+
+                $firstLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $firstPageOffset;
+                $lastLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $lastPageOffset;
+
+                if ($pageOffset == 0) {
+                    $prevLink = null;
+                } else {
+                    $prevPageOffset = $pageOffset - $pageLimit;
+                    $prevLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $prevPageOffset;
+                }
+
+                if ($pageOffset == $lastPageOffset) {
+                    $nextLink = null;
+                } else {
+                    $nextPageOffset = $pageLimit + $pageOffset;
+                    $nextLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $nextPageOffset;
+                }
+
+                $type = 'checklists';
+                $checklistId = $checklist->id;
+                $description = $checklist->description;
+                $isCompleted = $checklist->is_completed == 0 ? false : true;
+                $due = $checklist->due;
+                $taskId = $checklist->task_id;
+                $urgency = $checklist->urgency;
+                $completedAt = $checklist->completed_at;
+                $updatedBy = $checklist->updated_by;
+                $updatedAt = $checklist->updated_at;
+                $createdAt = $checklist->created_at;
+                $selfLink = $req->url() . '/' . $checklistId;
+                $objectDomain = $checklist->object_domain;
+                $objectId = $checklist->object_id;
+
+                $attributes = array(
+                    'object_domain'     => $objectDomain,
+                    'object_id'         => $objectId,
+                    'description'       => $description,
+                    'is_completed'      => $isCompleted,
+                    'due'               => $due,
+                    'task_id'           => $taskId,
+                    'urgency'           => $urgency,
+                    'completed_at'      => $completedAt,
+                    'last_update_by'    => $updatedBy,
+                    'update_at'         => $updatedAt,
+                    'created_at'        => $createdAt
+                );
+
+                $selfLink = array(
+                    'self'  => $selfLink
+                );
+
+                $data[] = array(
+                    'type'          => $type,
+                    'id'            => $checklistId,
+                    'attributes'    => $attributes,
+                    'links'         => $selfLink
+                );
+
+                if ($include == 'items') {
+                    $checklistitems = ChecklistItem::where('checklist_id', $checklistId)->with('updatedBy')->get();
+
+                    foreach ($checklistitems as $item) {
+                        $typeItem = 'items';
+                        $itemId = $item->id;
+                        $descriptionItem = $item->description;
+                        $isCompletedItem = $item->is_completed == 0 ? false : true;
+                        $completedAtItem = $item->due;
+                        $dueItem = $item->due;
+                        $urgencyItem = $item->urgency;
+                        $updateByItem = $item->updated_by;
+                        $deletedAtItem = $item->deleted_at;
+                        $createdAtItem = $item->created_at;
+                        $updatedAtItem = $item->updated_at;
+                        $linkSelfItem = url() . '/items/' . $itemId;
+
+                        $attributesItem = array(
+                            'description'   => $descriptionItem,
+                            'is_completed'  => $isCompletedItem,
+                            'complete_at'   => $completedAtItem,
+                            'due'           => $dueItem,
+                            'urgency'       => $urgencyItem,
+                            'updated_by'    => $updateByItem,
+                            'checklist_id'  => $checklistId,
+                            'deleted_at'    => $deletedAtItem,
+                            'created_at'    => $createdAtItem,
+                            'updated_at'    => $updatedAtItem
+                        );
+
+                        $linkSelfItem = array(
+                            'self'  => $linkSelfItem
+                        );
+
+                        $included[] = array(
+                            'type'          => $typeItem,
+                            'id'            => $itemId,
+                            'attributes'    => $attributesItem,
+                            'links'         => $linkSelfItem
+                        );
+                    }
+                }
+            }
+
+            $meta = array(
+                'count' => $pageLimit,
+                'total' => $total
+            );
+
+            $links = array(
+                'first' => $firstLink,
+                'last'  => $lastLink,
+                'next'  => $nextLink,
+                'prev'  => $prevLink
+            );
+
+            $response = array(
+                'meta'  => $meta,
+                'links' => $links,
+                'data'  => $data,
+            );
+
+            if (!empty($included)) {
+                $response = array(
+                    'meta'      => $meta,
+                    'links'     => $links,
+                    'data'      => $data,
+                    'included'  => $included
+                );
+            } else {
+                $response = array(
+                    'meta'      => $meta,
+                    'links'     => $links,
+                    'data'      => $data
+                );
+            }
+
+            return response()->json([
+                $response
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status'    => 500,

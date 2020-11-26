@@ -22,6 +22,12 @@ $router->group(['middleware' => 'auth','prefix' => 'api'], function ($router)
     $router->get('checklists/{checklistId}', 'ChecklistController@getByChecklistId');
     $router->patch('checklists/{checklistId}', 'ChecklistController@update');
     $router->delete('checklists/{checklistId}', 'ChecklistController@delete');
+    $router->get('checklists', 'ChecklistController@getList');
+
+    $router->post('checklists/{checklistId}/items', 'ChecklistItemController@store');
+    $router->get('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@getChecklistItem');
+    $router->patch('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@update');
+    $router->delete('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@delete');
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) 
