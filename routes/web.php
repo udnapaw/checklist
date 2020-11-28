@@ -44,7 +44,8 @@ $router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
     $router->post('checklists/{checklistId}/items/_bulk', 'ItemController@updateBulk');
     $router->post('checklists/complete', 'ItemController@complete');
     $router->post('checklists/incomplete', 'ItemController@incomplete');
-    $router->get('checklists/{checklistId}/items', 'ItemController@itemsInGivenChecklists');    
+    $router->get('checklists/{checklistId}/items', 'ItemController@itemsInGivenChecklists');
+    $router->post('checklists/templates', 'ChecklistTemplateController@store');    
     
 });
 

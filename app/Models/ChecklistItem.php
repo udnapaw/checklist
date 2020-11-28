@@ -15,7 +15,7 @@ class ChecklistItem extends Model
     ];
 
     protected $attributes = [
-        'is_completed' => false,
+        'is_completed' => 0,
     ];
     
     public function createdBy()
