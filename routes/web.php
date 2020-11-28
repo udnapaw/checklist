@@ -15,23 +15,40 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['middleware' => 'auth','prefix' => 'api'], function ($router) 
-{
+$router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
     $router->get('profile', 'AuthController@profile');
     $router->post('checklists', 'ChecklistController@store');
-    $router->get('checklists/{checklistId}', 'ChecklistController@getByChecklistId');
+    $router->get('checklists/items', [
+        'as'    => 'get.allItems',
+        'uses'  => 'ItemController@getAllItems'
+    ]);
+    $router->get('checklists/items/summaries', 'ItemController@summaryItem');
+    $router->get('checklists/{checklistId}', [
+        'as'    => 'get.checklist',
+        'uses'  => 'ChecklistController@getByChecklistId'
+    ]);
     $router->patch('checklists/{checklistId}', 'ChecklistController@update');
     $router->delete('checklists/{checklistId}', 'ChecklistController@delete');
     $router->get('checklists', 'ChecklistController@getList');
 
-    $router->post('checklists/{checklistId}/items', 'ChecklistItemController@store');
-    $router->get('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@getChecklistItem');
-    $router->patch('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@update');
-    $router->delete('checklists/{checklistId}/items/{itemId}', 'ChecklistItemController@delete');
+    $router->post('checklists/{checklistId}/items', [
+        'as'    => 'post.checklistItems',
+        'uses'  => 'ItemController@store'
+    ]);
+    $router->get('checklists/{checklistId}/items/{itemId}', [
+        'as'    => 'get.checklistItem',
+        'uses'  => 'ItemController@getChecklistItem'
+    ]);
+    $router->patch('checklists/{checklistId}/items/{itemId}', 'ItemController@update');
+    $router->delete('checklists/{checklistId}/items/{itemId}', 'ItemController@delete');
+    $router->post('checklists/{checklistId}/items/_bulk', 'ItemController@updateBulk');
+    $router->post('checklists/complete', 'ItemController@complete');
+    $router->post('checklists/incomplete', 'ItemController@incomplete');
+    $router->get('checklists/{checklistId}/items', 'ItemController@itemsInGivenChecklists');    
+    
 });
 
-$router->group(['prefix' => 'api'], function () use ($router) 
-{
-   $router->post('register', 'AuthController@register');
-   $router->post('login', 'AuthController@login');
+$router->group(['prefix' => 'api'], function () use ($router) {
+    $router->post('register', 'AuthController@register');
+    $router->post('login', 'AuthController@login');
 });

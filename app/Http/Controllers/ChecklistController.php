@@ -10,17 +10,16 @@ use App\Models\ChecklistItem;
 use App\Models\History;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Controllers\QueryParameterController;
 
 class ChecklistController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected $QueryParameterController;
+
+    public function __construct(QueryParameterController $QueryParameterController)
     {
         $this->middleware('auth:api');
+        $this->QueryParameterController = $QueryParameterController;
     }
 
     public function store(Request $req)
@@ -67,7 +66,7 @@ class ChecklistController extends Controller
                 ], 400);
             } else {
                 $checklistId = $checklist->id;
-                $links = $req->fullUrl() . '/' . $checklistId;
+                $links = route('get.checklist', ['checklistId' => $checklistId]);
 
                 if (!empty($req->items)) {
                     $items = $req->items;
@@ -141,7 +140,7 @@ class ChecklistController extends Controller
     {
         try {
             $checklist = Checklist::findOrFail($checklistId);
-            $links = $req->fullUrl() . '/' . $checklistId;
+            $links = route('get.checklist', ['checklistId' => $checklistId]);
 
             return response()->json([
                 'data'  => [
@@ -181,7 +180,7 @@ class ChecklistController extends Controller
     {
         try {
             $checklist = Checklist::findOrFail($checklistId);
-            $links = $req->fullUrl() . '/' . $checklistId;
+            $links = route('get.checklist', ['checklistId' => $checklistId]);
 
             $validator = Validator::make($req->data['attributes'], [
                 'object_domain'     => 'required',
@@ -332,23 +331,9 @@ class ChecklistController extends Controller
 
                 $firstPageOffset = 0;
                 $lastPageOffset = $total - $pageLimit;
+                $fullUrl = $req->fullUrl();
 
-                $firstLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $firstPageOffset;
-                $lastLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $lastPageOffset;
-
-                if ($pageOffset == 0) {
-                    $prevLink = null;
-                } else {
-                    $prevPageOffset = $pageOffset - $pageLimit;
-                    $prevLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $prevPageOffset;
-                }
-
-                if ($pageOffset == $lastPageOffset) {
-                    $nextLink = null;
-                } else {
-                    $nextPageOffset = $pageLimit + $pageOffset;
-                    $nextLink = $getLinks . '?page[limit]=' . $pageLimit . '&page[offset]=' . $nextPageOffset;
-                }
+                $getLinks = $this->QueryParameterController->pageOffset($firstPageOffset, $lastPageOffset, $pageOffset, $fullUrl, $pageLimit);                
 
                 $type = 'checklists';
                 $checklistId = $checklist->id;
@@ -361,7 +346,7 @@ class ChecklistController extends Controller
                 $updatedBy = $checklist->updated_by;
                 $updatedAt = $checklist->updated_at;
                 $createdAt = $checklist->created_at;
-                $selfLink = $req->url() . '/' . $checklistId;
+                $selfLink = route('get.checklist', ['checklistId' => $checklistId]);
                 $objectDomain = $checklist->object_domain;
                 $objectId = $checklist->object_id;
 
@@ -405,7 +390,7 @@ class ChecklistController extends Controller
                         $deletedAtItem = $item->deleted_at;
                         $createdAtItem = $item->created_at;
                         $updatedAtItem = $item->updated_at;
-                        $linkSelfItem = url() . '/items/' . $itemId;
+                        $linkSelfItem = route('get.checklistItem', ['checklistId' => $checklistId, 'itemId' => $itemId]);
 
                         $attributesItem = array(
                             'description'   => $descriptionItem,
@@ -440,10 +425,10 @@ class ChecklistController extends Controller
             );
 
             $links = array(
-                'first' => $firstLink,
-                'last'  => $lastLink,
-                'next'  => $nextLink,
-                'prev'  => $prevLink
+                'first' => $getLinks['firstLink'],
+                'last'  => $getLinks['lastLink'],
+                'next'  => $getLinks['nextLink'],
+                'prev'  => $getLinks['prevLink']
             );
 
             $response = array(
