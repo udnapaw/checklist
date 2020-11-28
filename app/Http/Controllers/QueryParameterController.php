@@ -11,7 +11,7 @@ class QueryParameterController extends Controller
 
         $oldPageUrl = "page%5Boffset%5D=" . $pageOffset;
         $lastPageOffset = $lastPageOffset < 0 ? 0 : $lastPageOffset;
-
+        
         $newPageUrlFirstLink = "page%5Boffset%5D=" . $firstPageOffset;
         $newPageUrlLastLink = "page%5Boffset%5D=" . $lastPageOffset;
         $firstLink = str_replace($oldPageUrl, $newPageUrlFirstLink, $fullUrl);

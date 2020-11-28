@@ -23,6 +23,12 @@ $router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
         'uses'  => 'ItemController@getAllItems'
     ]);
     $router->get('checklists/items/summaries', 'ItemController@summaryItem');
+    $router->post('checklists/templates', 'ChecklistTemplateController@store');
+    $router->get('checklists/templates', 'ChecklistTemplateController@listAll');    
+    $router->get('checklists/histories', [
+        'as'    => 'list.histories',
+        'uses'  => 'HistoryController@getList'
+    ]); 
     $router->get('checklists/{checklistId}', [
         'as'    => 'get.checklist',
         'uses'  => 'ChecklistController@getByChecklistId'
@@ -45,15 +51,17 @@ $router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
     $router->post('checklists/complete', 'ItemController@complete');
     $router->post('checklists/incomplete', 'ItemController@incomplete');
     $router->get('checklists/{checklistId}/items', 'ItemController@itemsInGivenChecklists');
-    $router->post('checklists/templates', 'ChecklistTemplateController@store');
-    $router->get('checklists/templates', 'ChecklistTemplateController@listAll');    
+    
     $router->get('checklists/templates/{templateId}', [
         'as'        => 'get.templates',
         'uses'      => 'ChecklistTemplateController@get'
     ]);
     $router->patch('checklists/templates/{templateId}', 'ChecklistTemplateController@update');
-    $router->delete('checklists/templates/{templateId}', 'ChecklistTemplateController@delete');
-    $router->post('checklists/templates/{templateId}/assigns', 'ChecklistTemplateController@assign');    
+    $router->delete('checklists/templates/{templateId}', 'ChecklistTemplateController@delete');    
+    $router->get('checklists/histories/{historyId}', [
+        'as'    => 'get.history',
+        'uses'  => 'HistoryController@getById'
+    ]);    
 
 });
 

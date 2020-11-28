@@ -703,7 +703,8 @@ class ItemController extends Controller
             }
 
             $firstPageOffset = 0;
-            $lastPageOffset = floor(($total - $pageLimit) / $pageLimit) * $pageLimit;
+            $lastPageOffset = floor(($total - $pageOffset) / $pageLimit);
+            $lastPageOffset = $lastPageOffset * $pageLimit;
             $fullUrl = $req->fullUrl();
 
             $getLinks = $this->QueryParameterController->pageOffset($firstPageOffset, $lastPageOffset, $pageOffset, $fullUrl, $pageLimit);

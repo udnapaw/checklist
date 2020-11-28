@@ -330,10 +330,11 @@ class ChecklistController extends Controller
             foreach ($checklists as $checklist) {
 
                 $firstPageOffset = 0;
-                $lastPageOffset = $total - $pageLimit;
+                $lastPageOffset = floor(($total - $pageOffset) / $pageLimit);
+                $lastPageOffset = $lastPageOffset * $pageLimit;
                 $fullUrl = $req->fullUrl();
 
-                $getLinks = $this->QueryParameterController->pageOffset($firstPageOffset, $lastPageOffset, $pageOffset, $fullUrl, $pageLimit);                
+                $getLinks = $this->QueryParameterController->pageOffset($firstPageOffset, $lastPageOffset, $pageOffset, $fullUrl, $pageLimit);
 
                 $type = 'checklists';
                 $checklistId = $checklist->id;
