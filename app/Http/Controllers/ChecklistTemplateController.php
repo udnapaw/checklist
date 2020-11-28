@@ -318,4 +318,39 @@ class ChecklistTemplateController extends Controller
             ], 500);
         }
     }
+
+    public function delete($templateId)
+    {
+        try {
+
+            $type = "templates";
+            $template = Template::findOrFail($templateId);
+            $action = 'delete';
+
+            $history = new History();
+            $history->loggable_type = $type;
+            $history->loggable_id = $templateId;
+            $history->action = $action;
+            $history->value = json_encode($templateId);
+            $history->created_by = auth()->user()->id;
+            $history->save();
+
+            $template->checklist->delete();
+
+            return response()->json("", 204);
+
+        }catch (ModelNotFoundException $e) {
+
+            return response()->json([
+                'status'    => 404,
+                'error'     => $e->getMessage()
+            ], 404);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'status'    => 500,
+                'error'     => $e->getMessage()
+            ], 500);
+        }
+    }
 }

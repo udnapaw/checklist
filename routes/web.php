@@ -51,6 +51,7 @@ $router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
         'uses'      => 'ChecklistTemplateController@get'
     ]);
     $router->patch('checklists/templates/{templateId}', 'ChecklistTemplateController@update');
+    $router->delete('checklists/templates/{templateId}', 'ChecklistTemplateController@delete');
 
 });
 
