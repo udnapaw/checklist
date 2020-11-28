@@ -20,4 +20,9 @@ class Template extends Model
     {
         return $this->belongsTo('App\Models\User', 'updated_by', 'id');
     }
+
+    public function checklist()
+    {
+        return $this->belongsTo('App\Models\Checklist', 'checklist_id', 'id');
+    }
 }

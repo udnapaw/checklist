@@ -46,7 +46,12 @@ $router->group(['middleware' => 'auth', 'prefix' => 'api'], function ($router) {
     $router->post('checklists/incomplete', 'ItemController@incomplete');
     $router->get('checklists/{checklistId}/items', 'ItemController@itemsInGivenChecklists');
     $router->post('checklists/templates', 'ChecklistTemplateController@store');    
-    
+    $router->get('/checklists/templates/{templateId}', [
+        'as'        => 'get.templates',
+        'uses'      => 'ChecklistTemplateController@get'
+    ]);
+    $router->patch('checklists/templates/{templateId}', 'ChecklistTemplateController@update');
+
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) {

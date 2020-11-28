@@ -11,7 +11,7 @@ class ChecklistItem extends Model
 
     protected $table = 'checklistitems';    
     protected $fillable = [
-        'checklist_id', 'description', 'due', 'urgency', 'is_completed', 'completed_at', 'deleted_at', 'assignee_id', 'created_by', 'updated_by', 'completed_by'
+        'checklist_id', 'description', 'due', 'urgency', 'is_completed', 'completed_at', 'deleted_at', 'assignee_id', 'created_by', 'updated_by', 'completed_by', 'due_interval', 'due_unit'
     ];
 
     protected $attributes = [

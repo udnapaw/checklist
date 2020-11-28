@@ -8,7 +8,7 @@ class Checklist extends Model
 {
     protected $table = 'checklists';    
     protected $fillable = [
-        'description', 'due', 'urgency', 'object_id', 'object_domain', 'is_completed', 'completed_at', 'task_id', 'created_by', 'updated_by'
+        'description', 'due', 'urgency', 'object_id', 'object_domain', 'is_completed', 'completed_at', 'task_id', 'created_by', 'updated_by', 'due_interval', 'due_unit'
     ];
 
     protected $attributes = [
@@ -23,6 +23,11 @@ class Checklist extends Model
     public function updatedBy()
     {
         return $this->belongsTo('App\Models\User', 'updated_by', 'id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany('App\Models\ChecklistItem');
     }
 
 }
