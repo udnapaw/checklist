@@ -593,45 +593,6 @@
 			"response": []
 		},
 		{
-			"name": "Create Invoice",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"order_code\"    : \"497107360066523\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://hiperiondev.haistar.co.id/api/jubelio/createInvoice/?apikey=13a069d99c42ce1da40822b4042d1153",
-					"protocol": "https",
-					"host": [
-						"hiperiondev",
-						"haistar",
-						"co",
-						"id"
-					],
-					"path": [
-						"api",
-						"jubelio",
-						"createInvoice",
-						""
-					],
-					"query": [
-						{
-							"key": "apikey",
-							"value": "13a069d99c42ce1da40822b4042d1153"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get All Items",
 			"request": {
 				"auth": {
